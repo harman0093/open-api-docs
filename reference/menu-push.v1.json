@@ -3,7 +3,7 @@
   "info": {
     "title": "Menu Push",
     "version": "1.0",
-    "description": ""
+    "description": "API for pushing menus to the Flyt system"
   },
   "servers": [
     {
