@@ -1,0 +1,877 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Menu Push",
+    "version": "1.0",
+    "description": ""
+  },
+  "servers": [
+    {
+      "url": "https://api.flypaythis.com"
+    }
+  ],
+  "paths": {
+    "/ingest/menu/{posBusinessName}/locations/{locationReference}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "posBusinessName",
+          "in": "path",
+          "required": true,
+          "description": "Location ID of the POS"
+        },
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "locationReference",
+          "in": "path",
+          "required": true,
+          "description": "Name of the brand, this is provided by Flyt"
+        }
+      ],
+      "post": {
+        "summary": "menu-push",
+        "tags": [
+          "menupush"
+        ],
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    }
+                  }
+                },
+                "examples": {
+                  "202": {
+                    "value": {
+                      "success": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "string"
+                    },
+                    "errorMessage": {
+                      "type": "string"
+                    },
+                    "validationErrors": {
+                      "type": "object",
+                      "properties": {
+                        "dataPath": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "Invalid/malformed baseline": {
+                    "value": {
+                      "success": "",
+                      "errorMessage": "Baseline menus not valid.",
+                      "validationErrors": {
+                        "dataPath": ".baseline_menus[0].categories[0].items[0]",
+                        "message": "should have required property 'modifiers'"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "examples": {
+                  "No API key found": {
+                    "value": {
+                      "message": "No API key found in request"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "examples": {
+                  "Passed auth but internal error  exists": {
+                    "value": {
+                      "success": "",
+                      "errorMessage": "Error on executing menu ingestion: grpc threw an error"
+                    }
+                  }
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "examples": {
+                  "Passed auth, internal issues caused error": {
+                    "value": {
+                      "success": "",
+                      "errorMessage": "Error on executing menu ingestion: grpc threw an error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "post-ingest-menu-posBusinessName-locations-locationReference",
+        "description": "Push Menu to this endpoint to auto sync and publish  it.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "header",
+            "name": "apiKey",
+            "description": "API key provided by Flyt"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "",
+                "properties": {
+                  "baseline_menus": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "description": "Name of menu ex) \"Breakfast\""
+                        },
+                        "reference": {
+                          "type": "string",
+                          "description": "Could be an external ID that will help the POS to identify the menu"
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "Different delivery types are \"ANY\", \"COLLECTION\", \"DELIVERY\""
+                        },
+                        "availability": {
+                          "type": "array",
+                          "description": "Define the menu availability on the store",
+                          "items": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "monday": {
+                                  "type": "array",
+                                  "description": "Availability time strings must be in the format \"09:00 - 17:30\"",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "tuesday": {
+                                  "type": "array",
+                                  "description": "Availability time strings must be in the format \"09:00 - 17:30\"",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "wednesday": {
+                                  "type": "array",
+                                  "description": "Availability time strings must be in the format \"09:00 - 17:30\"",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "thursday": {
+                                  "type": "array",
+                                  "description": "Availability time strings must be in the format \"09:00 - 17:30\"",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "friday": {
+                                  "type": "array",
+                                  "description": "Availability time strings must be in the format \"09:00 - 17:30\"",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "saturday": {
+                                  "type": "array",
+                                  "description": "Availability time strings must be in the format \"09:00 - 17:30\"",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "sunday": {
+                                  "type": "array",
+                                  "description": "Availability time strings must be in the format \"09:00 - 17:30\"",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        },
+                        "categories": {
+                          "type": "array",
+                          "description": "A menu category\t",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string"
+                              },
+                              "description": {
+                                "type": "string",
+                                "description": "Category description"
+                              },
+                              "items": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "description": {
+                                      "type": "string"
+                                    },
+                                    "plu": {
+                                      "type": "string",
+                                      "description": "Unique ID for a menu item"
+                                    },
+                                    "price": {
+                                      "type": "integer",
+                                      "description": "Price in pennies"
+                                    },
+                                    "reference": {
+                                      "type": "string",
+                                      "description": "Optional additional unique reference"
+                                    },
+                                    "modifiers": {
+                                      "type": "array",
+                                      "description": "Optional modifiers",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "name": {
+                                            "type": "string"
+                                          },
+                                          "description": {
+                                            "type": "string"
+                                          },
+                                          "pick": {
+                                            "oneOf": [
+                                              {
+                                                "description": "pick an exact amount of options",
+                                                "properties": {
+                                                  "exactly": {
+                                                    "type": "string",
+                                                    "description": "Pick an exact number"
+                                                  },
+                                                  "pick_same_option": {
+                                                    "type": "boolean",
+                                                    "description": "If true you are allowed to pick the same option more than once"
+                                                  }
+                                                },
+                                                "required": [
+                                                  "exactly",
+                                                  "pick_same_option"
+                                                ]
+                                              },
+                                              {
+                                                "properties": {
+                                                  "range": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                      "from": {
+                                                        "type": "number"
+                                                      },
+                                                      "to": {
+                                                        "type": "number"
+                                                      }
+                                                    }
+                                                  },
+                                                  "pick_same_option": {
+                                                    "type": "boolean",
+                                                    "description": "If true you are allowed to pick the same option more than once"
+                                                  }
+                                                },
+                                                "description": "pick between a range of options",
+                                                "required": [
+                                                  "range",
+                                                  "pick_same_option"
+                                                ]
+                                              },
+                                              {
+                                                "properties": {
+                                                  "pick_same_option": {
+                                                    "type": "boolean",
+                                                    "description": "If true you are allowed to pick the same option more than once"
+                                                  }
+                                                },
+                                                "description": "Pick an unlimited amount of options",
+                                                "required": [
+                                                  "pick_same_option"
+                                                ]
+                                              }
+                                            ],
+                                            "description": "Pick how many of a certain modifier you want to allow to be chosen",
+                                            "type": "object"
+                                          },
+                                          "options": {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "object",
+                                              "properties": {
+                                                "name": {
+                                                  "type": "string"
+                                                },
+                                                "plu": {
+                                                  "type": "string"
+                                                },
+                                                "price": {
+                                                  "type": "integer",
+                                                  "description": "Price in pennies"
+                                                },
+                                                "description": {
+                                                  "type": "string"
+                                                },
+                                                "reference": {
+                                                  "type": "string"
+                                                },
+                                                "modifiers": {
+                                                  "type": "array",
+                                                  "description": "We currently do not allow nested modifiers",
+                                                  "items": {
+                                                    "type": "null"
+                                                  }
+                                                }
+                                              },
+                                              "required": [
+                                                "name",
+                                                "plu",
+                                                "price",
+                                                "description",
+                                                "reference",
+                                                "modifiers"
+                                              ]
+                                            }
+                                          }
+                                        },
+                                        "required": [
+                                          "name",
+                                          "description",
+                                          "options"
+                                        ]
+                                      }
+                                    },
+                                    "swap": {
+                                      "type": "object",
+                                      "description": "Defines a swap modifier. This is used in case multiple items have different PLUs, but they're all mapping to the same item",
+                                      "properties": {
+                                        "name": {
+                                          "type": "string"
+                                        },
+                                        "options": {
+                                          "type": "array",
+                                          "items": {
+                                            "type": "object",
+                                            "properties": {
+                                              "name": {
+                                                "type": "string"
+                                              },
+                                              "plu": {
+                                                "type": "string"
+                                              },
+                                              "price": {
+                                                "type": "integer",
+                                                "description": "Price in pennies"
+                                              },
+                                              "reference": {
+                                                "type": "string"
+                                              },
+                                              "out_of_stock": {
+                                                "type": "boolean",
+                                                "description": "True if out of stock"
+                                              }
+                                            },
+                                            "required": [
+                                              "name",
+                                              "plu",
+                                              "price",
+                                              "reference"
+                                            ]
+                                          }
+                                        }
+                                      },
+                                      "required": [
+                                        "name",
+                                        "options"
+                                      ]
+                                    },
+                                    "out_of_stock": {
+                                      "type": "boolean",
+                                      "description": "Optional"
+                                    },
+                                    "gallery": {
+                                      "type": "array",
+                                      "description": "optional\n",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "url": {
+                                            "type": "string",
+                                            "description": "Path of image"
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "    includes": {
+                                      "type": "array",
+                                      "description": "Keep as empty array",
+                                      "items": {
+                                        "type": "null"
+                                      }
+                                    }
+                                  },
+                                  "required": [
+                                    "name",
+                                    "description",
+                                    "plu",
+                                    "price",
+                                    "reference",
+                                    "modifiers",
+                                    "    includes"
+                                  ]
+                                }
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "description",
+                              "items"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "reference",
+                        "type",
+                        "categories"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "baseline_menus"
+                ]
+              },
+              "examples": {
+                "example-1": {}
+              }
+            }
+          },
+          "description": ""
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "menu-push": {
+        "title": "menu-push",
+        "type": "object",
+        "x-examples": {},
+        "properties": {
+          "baseline_menus": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Name of menu ex) \"Breakfast\""
+                },
+                "reference": {
+                  "type": "string",
+                  "description": "Could be an external ID that will help the POS to identify the menu"
+                },
+                "type": {
+                  "type": "string",
+                  "description": "Different delivery types are \"ANY\", \"COLLECTION\", \"DELIVERY\""
+                },
+                "availability": {
+                  "type": "array",
+                  "description": "Define the menu availability on the store",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "monday": {
+                          "type": "array",
+                          "description": "Availability time strings must be in the format \"09:00 - 17:30\"",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "tuesday": {
+                          "type": "array",
+                          "description": "Availability time strings must be in the format \"09:00 - 17:30\"",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "wednesday": {
+                          "type": "array",
+                          "description": "Availability time strings must be in the format \"09:00 - 17:30\"",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "thursday": {
+                          "type": "array",
+                          "description": "Availability time strings must be in the format \"09:00 - 17:30\"",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "friday": {
+                          "type": "array",
+                          "description": "Availability time strings must be in the format \"09:00 - 17:30\"",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "saturday": {
+                          "type": "array",
+                          "description": "Availability time strings must be in the format \"09:00 - 17:30\"",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "sunday": {
+                          "type": "array",
+                          "description": "Availability time strings must be in the format \"09:00 - 17:30\"",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "categories": {
+                  "type": "array",
+                  "description": "A menu category\t",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string",
+                        "description": "Category description"
+                      },
+                      "items": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "plu": {
+                              "type": "string",
+                              "description": "Unique ID for a menu item"
+                            },
+                            "price": {
+                              "type": "integer",
+                              "description": "Price in pennies"
+                            },
+                            "reference": {
+                              "type": "string",
+                              "description": "Optional additional unique reference"
+                            },
+                            "modifiers": {
+                              "type": "array",
+                              "description": "Optional modifiers",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string"
+                                  },
+                                  "description": {
+                                    "type": "string"
+                                  },
+                                  "pick": {
+                                    "oneOf": [
+                                      {
+                                        "description": "pick an exact amount of options",
+                                        "properties": {
+                                          "exactly": {
+                                            "type": "string",
+                                            "description": "Pick an exact number"
+                                          },
+                                          "pick_same_option": {
+                                            "type": "boolean",
+                                            "description": "If true you are allowed to pick the same option more than once"
+                                          }
+                                        },
+                                        "required": [
+                                          "exactly",
+                                          "pick_same_option"
+                                        ]
+                                      },
+                                      {
+                                        "properties": {
+                                          "range": {
+                                            "type": "object",
+                                            "properties": {
+                                              "from": {
+                                                "type": "number"
+                                              },
+                                              "to": {
+                                                "type": "number"
+                                              }
+                                            }
+                                          },
+                                          "pick_same_option": {
+                                            "type": "boolean",
+                                            "description": "If true you are allowed to pick the same option more than once"
+                                          }
+                                        },
+                                        "description": "pick between a range of options",
+                                        "required": [
+                                          "range",
+                                          "pick_same_option"
+                                        ]
+                                      },
+                                      {
+                                        "properties": {
+                                          "pick_same_option": {
+                                            "type": "boolean",
+                                            "description": "If true you are allowed to pick the same option more than once"
+                                          }
+                                        },
+                                        "description": "Pick an unlimited amount of options",
+                                        "required": [
+                                          "pick_same_option"
+                                        ]
+                                      }
+                                    ],
+                                    "description": "Pick how many of a certain modifier you want to allow to be chosen",
+                                    "type": "object"
+                                  },
+                                  "options": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "name": {
+                                          "type": "string"
+                                        },
+                                        "plu": {
+                                          "type": "string"
+                                        },
+                                        "price": {
+                                          "type": "integer",
+                                          "description": "Price in pennies"
+                                        },
+                                        "description": {
+                                          "type": "string"
+                                        },
+                                        "reference": {
+                                          "type": "string"
+                                        },
+                                        "modifiers": {
+                                          "type": "array",
+                                          "description": "We currently do not allow nested modifiers",
+                                          "items": {
+                                            "type": "null"
+                                          }
+                                        }
+                                      },
+                                      "required": [
+                                        "name",
+                                        "plu",
+                                        "price",
+                                        "description",
+                                        "reference",
+                                        "modifiers"
+                                      ]
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "name",
+                                  "description",
+                                  "options"
+                                ]
+                              }
+                            },
+                            "swap": {
+                              "type": "object",
+                              "description": "Defines a swap modifier. This is used in case multiple items have different PLUs, but they're all mapping to the same item",
+                              "properties": {
+                                "name": {
+                                  "type": "string"
+                                },
+                                "options": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "name": {
+                                        "type": "string"
+                                      },
+                                      "plu": {
+                                        "type": "string"
+                                      },
+                                      "price": {
+                                        "type": "integer",
+                                        "description": "Price in pennies"
+                                      },
+                                      "reference": {
+                                        "type": "string"
+                                      },
+                                      "out_of_stock": {
+                                        "type": "boolean",
+                                        "description": "True if out of stock"
+                                      }
+                                    },
+                                    "required": [
+                                      "name",
+                                      "plu",
+                                      "price",
+                                      "reference"
+                                    ]
+                                  }
+                                }
+                              },
+                              "required": [
+                                "name",
+                                "options"
+                              ]
+                            },
+                            "out_of_stock": {
+                              "type": "boolean",
+                              "description": "Optional"
+                            },
+                            "gallery": {
+                              "type": "array",
+                              "description": "optional\n",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "url": {
+                                    "type": "string",
+                                    "description": "Path of image"
+                                  }
+                                }
+                              }
+                            },
+                            "    includes": {
+                              "type": "array",
+                              "description": "Keep as empty array",
+                              "items": {
+                                "type": "null"
+                              }
+                            }
+                          },
+                          "required": [
+                            "name",
+                            "description",
+                            "plu",
+                            "price",
+                            "reference",
+                            "modifiers",
+                            "    includes"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "description",
+                      "items"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "name",
+                "reference",
+                "type",
+                "categories"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}
